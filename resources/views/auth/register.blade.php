@@ -52,12 +52,10 @@
 
                 <x-button class="ml-4">
                     {{ __('Register') }}
-                </x-button>
-                <x-button class="ml-3">
-                    <a href="{{ url('/auth/redirect/github') }}" class="btn btn-warning">
-                        {{ __('Login with Github') }}
-                    </a>
-                </x-button>
+                </x-button>&nbsp
+                <a id="github-button" href="{{ url('/auth/redirect/github') }}" class="btn btn-social-icon btn-md btn-github">
+                    <i class="fa fa-github"></i>
+                </a>
             </div>
             </div>
         </form>

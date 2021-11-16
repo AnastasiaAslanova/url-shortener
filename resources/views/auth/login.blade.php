@@ -49,13 +49,11 @@
 
                 <x-button class="ml-3">
                     {{ __('Log in') }}
-                </x-button>
-                    <x-button class="ml-3">
-                            <a href="{{ url('/auth/redirect/github') }}" class="btn btn-warning">
-                                {{ __('Login with Github') }}
-                            </a>
-                    </x-button>
-                    </div>
+                </x-button>&nbsp
+                    <a id="github-button" href="{{ url('/auth/redirect/github') }}" class="btn btn-social-icon btn-github rounded-md">
+                        <i class="fa fa-github"></i>
+                    </a>
+            </div>
         </form>
     </x-auth-card>
 </x-guest-layout>
