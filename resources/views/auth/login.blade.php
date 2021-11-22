@@ -55,5 +55,15 @@
                     </a>
             </div>
         </form>
+{{--        <div class="flex items-center justify-end mt-4">--}}
+{{--            <svg xmins="http://wwww.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">--}}
+{{--            </svg>--}}
+{{--            <form metod="get" action="{{ route('/aus/redirect') }}">--}}
+{{--                <x-butto class="ml-2">--}}
+{{--                    {{ __('Login Via GitHub') }}--}}
+{{--                </x-butto>--}}
+{{--            </form>--}}
+
+        </div>
     </x-auth-card>
 </x-guest-layout>

@@ -29,3 +29,5 @@ Route::get('/auth/redirect/github', function () {
 });
 
 Route::get('/auth/github', [\App\Http\Controllers\Auth\AuthGithub::class, 'callback']);
+Route::get('/url/generator',[\App\Http\Controllers\ShortUrlGenerator::class, 'index'])->name('urlGenerator');
+Route::get('/{short}',[\App\Http\Controllers\ShortUrlGenerator::class, 'short'])->name('short');
