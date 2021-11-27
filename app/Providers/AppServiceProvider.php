@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Service\KeyGenerator;
+use App\Service\KeyGeneratorInterface;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->singleton(KeyGeneratorInterface::class, KeyGenerator::class);
     }
 
     /**

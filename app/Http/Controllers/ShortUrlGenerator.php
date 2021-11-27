@@ -2,122 +2,100 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\ShortUrl;
 use App\Models\ShortLink;
+use App\Service\NamedShortGenerate;
+use App\Service\ShortGenerate;
+use App\Service\ShortLinkGenerator;
+use App\Service\ValidationException;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Str;
-use Illuminate\Support\ViewErrorBag;
 
 class ShortUrlGenerator extends Controller
 {
-    public function generate(Request $request)
+    public function generate(Request $request, ShortLinkGenerator $generator): RedirectResponse
     {
-        $request->validate([
-            'long_url' => 'url',
-        ]);
+        $request->validate(
+            [
+                'long_url' => 'url',
+                'date' => 'nullable|date_format:Y-m-d'
+            ]
+        );
 
-        $longUrl = $request->input('long_url');
-        $link = $this->checkLongUrl($longUrl);
-        if (!$link) {
-            $link = new ShortLink();
-            $link->long_url = $longUrl;
-            $link->short_url = '';
-            $link->user_id = Auth::id();
-            $link->save();
-            $short = ShortUrl::idToShortUrl($link->id);
+        $type = $request->input('type', 'simpleShort');
+        $link = $generator->generate(
+            ShortGenerate::create(
+                Auth::id(),
+                $request->input('long_url'),
+                $request->input('date'),
+                'shortWithKey' === $type
+            )
+        );
+        Session::flash('short', $link->short_url);
+        Session::flash('long', $link->long_url);
 
-            while ($this->checkBlackList($short)) {
-                $link->delete();
-                $link = new ShortLink();
-                $link->long_url = $longUrl;
-                $link->short_url = '';
-                $link->save();
-                $short = ShortUrl::idToShortUrl($link->id);
-            }
-            $type = $request->input('type');
-
-            if ($type == "shortWithKey")
-            {
-                $short = $short.'/'.Str::random(6);
-            }
-            $link->short_url = $short;
-            $link->user_id = Auth::id();
-            $link->save();
-        } else {
-            Session::flash('short', $link->short_url);
-            Session::flash('long', $link->long_url);
-        }
         return redirect()->route('linkList');
     }
 
-    public function generateNamed(Request $request, ViewErrorBag $messageBag)
+    public function generateNamed(Request $request, ShortLinkGenerator $generator): RedirectResponse
     {
-        $request->validate([
-            'long_url' => 'url'
-        ]);
-        $longUrl = $request->input('long_url');
-        $link = $this->checkLongUrl($longUrl);
-        if (!$link) {
-            $shortName = $request->input('name');
-            $data = ShortLink::where('short_url', $shortName)->where('user_id',Auth::id())->first();
-            if ($data) {
-                return redirect()->back()->withErrors(['name' => 'The name already exist']);
-            } else if ($this->checkBlackList($shortName)) {
-                return redirect()->back()->withErrors(['name' => 'You are using bad words']);
-            } else {
-                $link = new ShortLink();
-                $link->long_url = $longUrl;
-                $link->short_url = $shortName;
-                $link->user_id = Auth::id();
-                $link->save();
-            }
-        } else {
+        $request->validate(
+            [
+                'long_url' => 'url',
+                'date' => 'nullable|date_format:Y-m-d'
+            ]
+        );
+
+        try {
+            $link = $generator->generateNamed(
+                NamedShortGenerate::create(
+                    Auth::id(),
+                    $request->input('long_url'),
+                    $request->input('date'),
+                    $request->input('name')
+                )
+            );
             Session::flash('short', $link->short_url);
             Session::flash('long', $link->long_url);
+        } catch (ValidationException $e) {
+            return redirect()->back()->withErrors($e->getErrors());
         }
+
         return redirect()->route('linkList');
     }
+
     public function short($short)
     {
         $shortLink = ShortLink::where('short_url', $short)->first();
         if ($shortLink) {
+            if (date('Y-m-d') > $shortLink->expiration_date) {
+                abort(404, 'Link expired');
+            }
             return redirect()->away($shortLink->long_url);
-        } else {
-            echo 'No such link exists';
         }
+        abort(404, 'Link not found');
     }
 
     public function shortWithKey($short, $key)
     {
-        $path = $short.'/'.$key;
-        $shortLink = ShortLink::where('short_url', $path)->where('user_id',Auth::id())->first();
+        $path = $short . '/' . $key;
+        $shortLink = ShortLink::where('short_url', $path)->where('user_id', Auth::id())->first();
         if ($shortLink) {
+            if (date('Y-m-d') > $shortLink->expiration_date) {
+                abort(404, 'Link expired');
+            }
             return redirect()->away($shortLink->long_url);
-        } else {
-            echo 'No such link exists';
         }
+        abort(404, 'Link not found');
     }
 
-    public function checkBlackList(string $shortUrl): bool
+    public function linkList(): View
     {
-        $blackWords = config('blackList');
-        return in_array(strtolower($shortUrl), $blackWords);
-    }
-
-    public function checkLongUrl(string $longUrl): ?ShortLink
-    {
-        return ShortLink::where('long_url', $longUrl)->where('user_id',Auth::id())->first();
-    }
-
-    public function linkList()
-    {
-        $links = ShortLink::where('user_id',Auth::id())->orderByDesc('id')->get();
+        $links = ShortLink::where('user_id', Auth::id())->orderByDesc('id')->get();
 
         return view('short-url-generator', ['links' => $links]);
     }
-
-
 
 }

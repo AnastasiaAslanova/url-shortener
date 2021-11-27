@@ -11,19 +11,34 @@
                     <div class="mb-2">Enter url to convert:</div>
                     <form method="POST" action="{{ route('urlGenerator') }}">
                         @csrf
-                        <input name="type" value="{{ $type ?? 'simpleShort' }}" type="hidden" >
-                        <input name="long_url" type="text" style="height:50px;width:800px;" placeholder="enter url" class="form-input px-4 py-3 mb-3 rounded-md"/>
-                        @if($errors->has('long_url'))
-                            {{$errors->first('long_url')}}
-                        @endif
-                        <p>
-                            <input type="date" id="date" name="date" class="form-input px-4 py-3 mb-3 rounded-md"/>
-                        </p>
-                        <x-button>&nbsp
-                            {{ ('ShortUrl') }}
-                        </x-button>
+                        <div class="flex flex-col">
+                            <input name="type" value="{{ $type ?? 'simpleShort' }}" type="hidden" >
+                            <div class="mb-3">
+                                <input name="long_url" type="text" style="height:50px;width:800px;" placeholder="enter url" class="form-input px-4 py-3 rounded-md"/><br/>
+                                @if($errors->has('long_url'))
+                                    <span class="text-red-600">{{$errors->first('long_url')}}</span>
+                                @endif
+                            </div>
+                            <div>
+                                <p>
+                                    <input type="date" id="date" name="date" class="form-input px-4 py-3 rounded-md"/><br/>
+                                    <span class="text-gray-400 text-xs">Link expiration date</span>
+                                    @if($errors->has('date'))
+                                        <br/>
+                                        <span class="text-red-600">{{$errors->first('date')}}</span>
+                                    @endif
+                                </p>
+                            </div>
+                            <br/>
+                            <div>
+                                <x-button>&nbsp
+                                    {{ ('ShortUrl') }}
+                                </x-button>
+                            </div>
+                        </div>
                     </form>
                     <br/>
+                </div>
             </div>
         </div>
     </div>

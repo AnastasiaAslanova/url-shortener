@@ -16,7 +16,7 @@ use Laravel\Socialite\Facades\Socialite;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('home');
 
 require __DIR__.'/auth.php';
 
@@ -44,11 +44,11 @@ Route::middleware(['auth'])->group(function() {
     Route::post('/url/named_generator', [\App\Http\Controllers\ShortUrlGenerator::class, 'generateNamed'])->name('namedUrlGenerator');
 
     Route::get('/url/list', [\App\Http\Controllers\ShortUrlGenerator::class, 'linkList'])->name('linkList');
-
-    Route::get('/{short}', [\App\Http\Controllers\ShortUrlGenerator::class, 'short'])->name('short');
-    Route::get('/{short}/{key}', [\App\Http\Controllers\ShortUrlGenerator::class, 'shortWithKey'])->name(
-        'urlGeneratorWithKey'
-    );
 });
+
+Route::get('/{short}', [\App\Http\Controllers\ShortUrlGenerator::class, 'short'])->name('short');
+Route::get('/{short}/{key}', [\App\Http\Controllers\ShortUrlGenerator::class, 'shortWithKey'])->name(
+    'urlGeneratorWithKey'
+);
 
 

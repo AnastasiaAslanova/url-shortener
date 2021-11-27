@@ -25,7 +25,12 @@
                                 @endif
                             </div>
                             <div class="mb-3">
-                                <input type="date" id="date" class="form-input px-4 py-3 rounded-md" name="date"/>
+                                <input type="date" id="date" class="form-input px-4 py-3 rounded-md" name="date"/><br/>
+                                <span class="text-gray-400 text-xs">Link expiration date</span>
+                                @if($errors->has('date'))
+                                    <br/>
+                                    <span class="text-red-600">{{$errors->first('date')}}</span>
+                                @endif
                             </div>
                             <div>
                                 <x-button>
