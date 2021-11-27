@@ -18,10 +18,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
-
 require __DIR__.'/auth.php';
 
 Route::get('/auth/redirect/github', function () {
@@ -29,5 +25,30 @@ Route::get('/auth/redirect/github', function () {
 });
 
 Route::get('/auth/github', [\App\Http\Controllers\Auth\AuthGithub::class, 'callback']);
-Route::get('/url/generator',[\App\Http\Controllers\ShortUrlGenerator::class, 'index'])->name('urlGenerator');
-Route::get('/{short}',[\App\Http\Controllers\ShortUrlGenerator::class, 'short'])->name('short');
+
+Route::middleware(['auth'])->group(function() {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    Route::get('/generator/url', function (\Illuminate\Http\Request $request) {
+        $type = $request->input('type');
+        if (in_array($type, ['shortWithKey', 'simpleShort'])) {
+            return view('generator-url', ['type' => $type]);
+        } else {
+            return view('namedUrl');
+        }
+    })->name('choice');
+
+    Route::post('/url/generator', [\App\Http\Controllers\ShortUrlGenerator::class, 'generate'])->name('urlGenerator');
+    Route::post('/url/named_generator', [\App\Http\Controllers\ShortUrlGenerator::class, 'generateNamed'])->name('namedUrlGenerator');
+
+    Route::get('/url/list', [\App\Http\Controllers\ShortUrlGenerator::class, 'linkList'])->name('linkList');
+
+    Route::get('/{short}', [\App\Http\Controllers\ShortUrlGenerator::class, 'short'])->name('short');
+    Route::get('/{short}/{key}', [\App\Http\Controllers\ShortUrlGenerator::class, 'shortWithKey'])->name(
+        'urlGeneratorWithKey'
+    );
+});
+
+
