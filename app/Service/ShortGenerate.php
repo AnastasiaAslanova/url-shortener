@@ -8,7 +8,7 @@ class ShortGenerate
 {
     private int $userId;
     private string $longUrl;
-    private string $date;
+    private ?string $date;
     private bool $withKey;
 
     private function __construct(
@@ -18,7 +18,7 @@ class ShortGenerate
     public static function create(
         int $userId,
         string $longUrl,
-        string $date,
+        ?string $date,
         bool $withKey
     ): self {
         $self = new self();
@@ -45,7 +45,7 @@ class ShortGenerate
         return $this->withKey;
     }
 
-    public function getDate(): string
+    public function getDate(): ?string
     {
         return $this->date;
     }

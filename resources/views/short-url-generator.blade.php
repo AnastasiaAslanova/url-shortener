@@ -36,13 +36,17 @@
                     <a href="{{route('short',['short' => $link->short_url])}}">
                         {{ route('short',['short' => $link->short_url]) }}
                     </a>
+                    @if(!empty($link->expiration_date))
+                        <span class="text-gray-500 text-sm">(expired: {{$link->expiration_date}})</span>
+                    @endif
                 </div>
             </td>
             <td style="border: 1px solid black" width:auto>
                 <div style="word-wrap: break-word" class="py-2 pl-2">
-                    <span>
-                        <button wire:click="delete {{ route('delete',['id' => $link->id]) }}" class="inline-flex items-center bg-red-200 border-0 py-1 px-3 focus:outline-none hover:bg-red-300 rounded text-base mt-4 md:mt-0">Delete Url</button>
-                    </span>
+                    <form method="post" action="{{route('deleteLink', ['id' => $link->id])}}">
+                        @csrf
+                        <button type="submit" class="inline-flex items-center bg-red-200 border-0 py-1 px-3 focus:outline-none hover:bg-red-300 rounded text-base mt-4 md:mt-0">Delete Url</button>
+                    </form>
                 </div>
             </td>
         </tr>

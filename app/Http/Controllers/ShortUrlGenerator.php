@@ -11,6 +11,8 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Session;
 
 class ShortUrlGenerator extends Controller
@@ -68,23 +70,47 @@ class ShortUrlGenerator extends Controller
 
     public function short($short)
     {
-        $shortLink = ShortLink::where('short_url', $short)->first();
-        if ($shortLink) {
-            if (date('Y-m-d') > $shortLink->expiration_date) {
-                abort(404, 'Link expired');
+        if (Redis::exists($short)) {
+            $longUrl = Redis::get($short);
+            return redirect()->away($longUrl);
+        } else {
+            $shortLink = ShortLink::where('short_url', $short)->first();
+            if ($shortLink) {
+                if ($shortLink->expiration_date && date('Y-m-d') > $shortLink->expiration_date) {
+                    abort(404, 'Link expired');
+                } else {
+                    Redis::set(
+                        $shortLink->short_url,
+                        $shortLink->long_url,
+                        $shortLink->expiration_date ? 'EXAT' : null,
+                        strtotime($shortLink->expiration_date)
+                    );
+                }
+                return redirect()->away($shortLink->long_url);
             }
-            return redirect()->away($shortLink->long_url);
+            abort(404, 'Link not found');
         }
-        abort(404, 'Link not found');
     }
 
     public function shortWithKey($short, $key)
     {
         $path = $short . '/' . $key;
-        $shortLink = ShortLink::where('short_url', $path)->where('user_id', Auth::id())->first();
+        if (Redirect::exists($path)){
+            $longUrl = Redirect::get($path);
+            return redirect()->away($longUrl);
+        }else{
+            $shortLink = ShortLink::where('short_url', $path)->where('user_id', Auth::id())->first();
+        }
         if ($shortLink) {
-            if (date('Y-m-d') > $shortLink->expiration_date) {
+            if ($shortLink->expiration_date && date('Y-m-d') > $shortLink->expiration_date) {
                 abort(404, 'Link expired');
+            }else{
+                Redirect::set(
+                  $shortLink->short_url,
+                  $shortLink->long_url,
+                  $shortLink-> expiration_date ? 'EXAT' : null,
+                  strtotime($shortLink->expiration_date)
+                );
             }
             return redirect()->away($shortLink->long_url);
         }
@@ -96,6 +122,16 @@ class ShortUrlGenerator extends Controller
         $links = ShortLink::where('user_id', Auth::id())->orderByDesc('id')->get();
 
         return view('short-url-generator', ['links' => $links]);
+    }
+
+    public function deleteLink($id)
+    {
+        $link = ShortLink::where('id', $id)->first();
+        if (!$link) {
+            Session::flash('error', 'Link not found');
+        }
+        $link->delete();
+        return redirect()->route('linkList');
     }
 
 }

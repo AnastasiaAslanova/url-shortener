@@ -45,7 +45,7 @@ Route::middleware(['auth'])->group(function() {
 
     Route::get('/url/list', [\App\Http\Controllers\ShortUrlGenerator::class, 'linkList'])->name('linkList');
 
-    Route::get('/url/delete/id', [\App\Http\Controllers\DeleteUrl::class, 'delete'])->name('delete');
+    Route::post('/url/delete/{id}', [\App\Http\Controllers\ShortUrlGenerator::class, 'deleteLink'])->name('deleteLink');
 });
 
 Route::get('/{short}', [\App\Http\Controllers\ShortUrlGenerator::class, 'short'])->name('short');
