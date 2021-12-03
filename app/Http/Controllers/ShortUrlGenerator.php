@@ -11,7 +11,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Session;
 
@@ -70,22 +70,18 @@ class ShortUrlGenerator extends Controller
 
     public function short($short)
     {
-        if (Redis::exists($short)) {
-            $longUrl = Redis::get($short);
-            return redirect()->away($longUrl);
+        if (Redis::exists('short_' . $short)) {
+            $shortLink = Redis::hgetall('short_' . $short);
+            $this->saveStat($shortLink['id']);
+            return redirect()->away($shortLink['long_url']);
         } else {
             $shortLink = ShortLink::where('short_url', $short)->first();
             if ($shortLink) {
                 if ($shortLink->expiration_date && date('Y-m-d') > $shortLink->expiration_date) {
                     abort(404, 'Link expired');
-                } else {
-                    Redis::set(
-                        $shortLink->short_url,
-                        $shortLink->long_url,
-                        $shortLink->expiration_date ? 'EXAT' : null,
-                        strtotime($shortLink->expiration_date)
-                    );
                 }
+                $this->saveLinkToCache($shortLink);
+                $this->saveStat($shortLink->id);
                 return redirect()->away($shortLink->long_url);
             }
             abort(404, 'Link not found');
@@ -95,26 +91,32 @@ class ShortUrlGenerator extends Controller
     public function shortWithKey($short, $key)
     {
         $path = $short . '/' . $key;
-        if (Redirect::exists($path)){
-            $longUrl = Redirect::get($path);
-            return redirect()->away($longUrl);
-        }else{
-            $shortLink = ShortLink::where('short_url', $path)->where('user_id', Auth::id())->first();
+        return $this->short($path);
+    }
+
+    private function saveStat($id)
+    {
+        DB::table('stats')->insert(
+            [
+                'short_url_id' => $id,
+                'date' => date('Y-m-d')
+            ]
+        );
+    }
+
+    private function saveLinkToCache(ShortLink $short)
+    {
+        $key = 'short_' . $short->short_url;
+        Redis::hmset(
+            $key,
+            'id',
+            $short->id,
+            'long_url',
+            $short->long_url
+        );
+        if ($short->expiration_date) {
+            Redis::expireat($key, strtotime($short->expiration_date));
         }
-        if ($shortLink) {
-            if ($shortLink->expiration_date && date('Y-m-d') > $shortLink->expiration_date) {
-                abort(404, 'Link expired');
-            }else{
-                Redirect::set(
-                  $shortLink->short_url,
-                  $shortLink->long_url,
-                  $shortLink-> expiration_date ? 'EXAT' : null,
-                  strtotime($shortLink->expiration_date)
-                );
-            }
-            return redirect()->away($shortLink->long_url);
-        }
-        abort(404, 'Link not found');
     }
 
     public function linkList(): View

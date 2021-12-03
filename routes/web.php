@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\MeController;
+use App\Http\Controllers\StatisticController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -46,7 +48,10 @@ Route::middleware(['auth'])->group(function() {
     Route::get('/url/list', [\App\Http\Controllers\ShortUrlGenerator::class, 'linkList'])->name('linkList');
 
     Route::post('/url/delete/{id}', [\App\Http\Controllers\ShortUrlGenerator::class, 'deleteLink'])->name('deleteLink');
+    Route::get('/me/statistic', [MeController::class, 'statistic'])->name('myStatistic');
 });
+
+Route::get('/statistic', [StatisticController::class, 'index'])->name('statistic');
 
 Route::get('/{short}', [\App\Http\Controllers\ShortUrlGenerator::class, 'short'])->name('short');
 Route::get('/{short}/{key}', [\App\Http\Controllers\ShortUrlGenerator::class, 'shortWithKey'])->name(

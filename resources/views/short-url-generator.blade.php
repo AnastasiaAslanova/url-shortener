@@ -19,9 +19,9 @@
     <table style="border:1px solid black; border-collapse: collapse; width: 90%; margin: auto" class="table-fixed rounded-md">
         <thead>
             <tr>
-                <th class="w-4/6" style="border: 1px solid black">Your links</th>
-                <th class="w-1/4" style="border: 1px solid black">Short links</th>
-                <th class="w-3/3" style="border: 1px solid black">Actions</th>
+                <th style="border: 1px solid black; width:55%">Your links</th>
+                <th style="border: 1px solid black; width:35%">Short links</th>
+                <th style="border: 1px solid black; width:10%">Actions</th>
             </tr>
         </thead>
             @foreach($links as $link)
@@ -32,7 +32,7 @@
                 </div>
             </td>
             <td style="border: 1px solid black">
-                <div class="py-2 pl-2">
+                <div style="word-wrap: break-word" class="py-2 pl-2">
                     <a href="{{route('short',['short' => $link->short_url])}}">
                         {{ route('short',['short' => $link->short_url]) }}
                     </a>
@@ -41,8 +41,8 @@
                     @endif
                 </div>
             </td>
-            <td style="border: 1px solid black" width:auto>
-                <div style="word-wrap: break-word" class="py-2 pl-2">
+            <td style="border: 1px solid black">
+                <div style="word-wrap: break-word; text-align: center" class="py-2 pl-2">
                     <form method="post" action="{{route('deleteLink', ['id' => $link->id])}}">
                         @csrf
                         <button type="submit" class="inline-flex items-center bg-red-200 border-0 py-1 px-3 focus:outline-none hover:bg-red-300 rounded text-base mt-4 md:mt-0">Delete Url</button>
