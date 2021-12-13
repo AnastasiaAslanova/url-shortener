@@ -7,7 +7,7 @@
 
 The purpose of this application is to provide shortened URLs for links.
 
-###It provides the following features:
+### It provides the following features:
 - Shortened URL
 - Shortened URL with a key, for greater reliability.
 - Named shortened links.
@@ -31,7 +31,7 @@ git clone
 ```sh
 $ cp .env.exampl .env
 ```
-###If you have a sail alias execute:
+### If you have a sail alias execute:
 
 ```sh
 sail up -d
@@ -49,7 +49,7 @@ sail artisan migrate
 Go to http://localhost/
 
 
-###If there is no alias:
+###  If there is no alias:
 ```sh
 docker compose up -d
 ```
@@ -62,7 +62,7 @@ php artisan migrate
 ```
 Go to http://localhost/
 
-###Statistic
+### Statistic
 The project has a console command HendleStatistic. By it's execution the statistic of previous day handled.
 To run it, create a crown task.
 ```sh
