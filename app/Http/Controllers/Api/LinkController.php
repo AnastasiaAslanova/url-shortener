@@ -8,6 +8,7 @@ use App\Models\ShortLink;
 use App\Service\NamedShortGenerate;
 use App\Service\ShortGenerate;
 use App\Service\ShortLinkGenerator;
+use App\Service\ValidationException;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -41,6 +42,7 @@ class LinkController extends Controller
                 'date' => 'nullable|date_format:Y-m-d'
             ]
         );
+        try {
         $link = $generator->generateNamed(
             NamedShortGenerate::create(
                 0,
@@ -49,6 +51,9 @@ class LinkController extends Controller
                 $request->input('name')
             )
         );
+        } catch (ValidationException $e) {
+            return redirect()->back()->withErrors($e->getErrors());
+        }
         return new LinkResource($link);
     }
 

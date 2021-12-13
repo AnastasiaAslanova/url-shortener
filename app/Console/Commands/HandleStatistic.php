@@ -9,6 +9,8 @@ use Throwable;
 
 class HandleStatistic extends Command
 {
+//    Runs on the server every day to collect information
+
     /**
      * The name and signature of the console command.
      *

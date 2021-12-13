@@ -11,6 +11,7 @@ class StatisticController extends Controller
 {
     public function index(Request $request, Statistic $statistic)
     {
+
         $month = $request->input('month');
         $year = $request->input('year', date('Y'));
 
