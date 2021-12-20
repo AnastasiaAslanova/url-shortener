@@ -21,6 +21,21 @@ It is possible to monitor the statistics of clicks on short links by month.
 Execute in terminal:
 ```sh
 git clone
+cd url-shortener
+```
+
+If the composer is installed on a local computer:
+```sh
+composer install --ignore-platform-reqs
+```
+If not, run composer install from the docker container:
+```sh
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v $(pwd):/opt \
+    -w /opt \
+    laravelsail/php80-composer:latest \
+    composer install --ignore-platform-reqs
 ```
 
 - Create a file
@@ -29,38 +44,28 @@ git clone
 - Then fill it in with your details.
 
 ```sh
-$ cp .env.exampl .env
+cp .env.exampl .env
 ```
-### If you have a sail alias execute:
 
+Generating keys
 ```sh
-sail up -d
+php artisan key:generate
+```
+
+To run a container:
+```sh
+./vendor/bin/sail build --no-cache
 ```
 ```sh
-sail composer install
-```
-```sh
-sail composer install
+./vendor/bin/sail up -d
 ```
 Launching migrations
 ```sh
-sail artisan migrate
+./vendor/bin/sail artisan migrate
 ```
 Go to http://localhost/
 
-
-###  If there is no alias:
-```sh
-docker compose up -d
-```
-```sh
-docker compose exec <servis name> composer install 
-```
-Launching migrations
-```sh
-php artisan migrate
-```
-Go to http://localhost/
+To use github auth - create github application, copy and paste github_client_id and github_client_secret to .env
 
 ### Statistic
 The project has a console command HendleStatistic. By it's execution the statistic of previous day handled.
