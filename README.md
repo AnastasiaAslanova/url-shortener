@@ -18,9 +18,13 @@ Redirect to original url when requesting a short url
 It is possible to monitor the statistics of clicks on short links by month.
 
 ### Installation:
+Clone the repository
+```sh
+git clone git@github.com:AnastasiaAslanova/url-shortener.git
+```
+
 Execute in terminal:
 ```sh
-git clone
 cd url-shortener
 ```
 
