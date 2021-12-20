@@ -1,8 +1,8 @@
 {
-    "name": "laravel/laravel",
+    "name": "anastasiaaslanova/url-shortener",
     "type": "project",
-    "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
+    "description": "Short link generator",
+    "keywords": ["url-shortener","short url"],
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
@@ -15,6 +15,7 @@
         "laravel/tinker": "^2.5"
     },
     "require-dev": {
+        "brianium/paratest": "*",
         "facade/ignition": "^2.5",
         "fakerphp/faker": "^1.9.1",
         "laravel/breeze": "^1.4",
