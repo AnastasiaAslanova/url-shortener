@@ -49,7 +49,7 @@ class ShortLinkGenerator
     {
         $link = $this->checkLongUrl($request->getUserId(), $request->getLongUrl());
         if (!$link) {
-            $data = ShortLink::where('short_url', $request->getName())->where('user_id',Auth::id())->first();
+            $data = ShortLink::where('short_url', $request->getName())->first();
             if ($data) {
                 throw new ValidationException(['name' => 'The name already exist']);
             } else if ($this->checkBlackList($request->getName())) {

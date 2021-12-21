@@ -12,9 +12,8 @@ class ShortUrl
         while ($id > 0)
         {
             $shortUrl[] = $arrayMap[$id % 62];
-            $id = (int) $id/62;
+            $id = (int) ($id/62);
         }
-
         return implode ("", array_reverse($shortUrl));
     }
 }
